@@ -176,7 +176,7 @@ def main(args):
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
     cfg.train.max_iter = 60000
-    cfg.train.checkpointer.period = 2000
+    cfg.train.checkpointer.period = 500
     cfg.train.eval_period = 1000
     cfg.train.log_period = 20
     cfg.optimizer.lr = 0.001
