@@ -21,13 +21,13 @@ train["init_checkpoint"] = "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
 train["output_dir"] = "./ablation-DA-25k"
 model.do_domain = True
 
-DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/home/aicenter/maskrcnn/rebar-revit-auto-dataset/files-25087.txt", txt=True))
+DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/imgs"))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/da-train-target.txt", txt=True))
-DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/da-train-target4.txt", txt=True))
-DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/home/aicenter/maskrcnn/rebar-labeled-test-dataset/target-val.txt", txt=True))
-DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/home/aicenter/maskrcnn/rebar-labeled-test-dataset/target-slab.txt", txt=True))
-# DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/home/aicenter/maskrcnn/rebar-revit-auto-dataset/rebar-revit-auto-test.txt", txt=True))
+DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/content/drive/MyDrive/RB/realData", txt=False))
+DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/realData", txt=False))
+DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
+
 
 MetadataCatalog.get("steel_train").set(thing_classes=['intersection', 'spacing'])
 MetadataCatalog.get("steel_test").set(thing_classes=['intersection', 'spacing'])
