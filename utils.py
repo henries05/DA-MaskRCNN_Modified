@@ -13,6 +13,8 @@ def get_rebar_dicts(img_dir, txt = True, labeled = True):
                 jsonFolder.append(os.path.join(folder, "json", line.rstrip()))
     else:
         jsonFolder = glob.glob(os.path.join(img_dir, "json", "*.json"))
+        if len(jsonFolder) == 0:
+            jsonFolder = glob.glob(os.path.join(img_dir, "**", "*.json"), recursive=True)
         folder = os.path.abspath(img_dir)
     # for idx, json_file in enumerate(glob.glob(os.path.join(img_dir, "json", "*.json"))):
     for idx, json_file in enumerate(jsonFolder):
@@ -25,8 +27,11 @@ def get_rebar_dicts(img_dir, txt = True, labeled = True):
             break
 
         record = {}
+        json_dir = os.path.dirname(json_file)
         
-        filename = os.path.join(folder, "imgs", os.path.basename(imgs_anns["imagePath"]))
+        filename = os.path.join(json_dir, "imgs", os.path.basename(imgs_anns["imagePath"]))
+        if not os.path.exists(filename):
+            filename = os.path.join(json_dir, os.path.basename(imgs_anns["imagePath"]))
         
         record["file_name"] = filename
         record["image_id"] = idx
