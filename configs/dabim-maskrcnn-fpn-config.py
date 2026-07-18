@@ -53,7 +53,7 @@ dataloader.train = LazyCall(build_detection_train_loader)(
                         image_format="BGR",
                         use_instance_mask=True,
                     ),
-                    total_batch_size=2,
+                    total_batch_size=1,
                     num_workers=2,
                     )
 dataloader.train_target = LazyCall(build_detection_train_loader)(
@@ -80,7 +80,7 @@ dataloader.train_target = LazyCall(build_detection_train_loader)(
                                 image_format="BGR",
                                 use_instance_mask=True,
                             ),
-                            total_batch_size=2,
+                            total_batch_size=1,
                             num_workers=2,
                             )
 
