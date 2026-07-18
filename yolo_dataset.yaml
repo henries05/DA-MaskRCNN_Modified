@@ -1,0 +1,14 @@
+# Đường dẫn đến thư mục dataset đã được convert
+# Nếu chạy trên Colab, cấu trúc thư mục sau khi chạy json2yolo.py sẽ nằm trong yolo_dataset
+path: /content/DA-MaskRCNN_Modified/yolo_dataset 
+
+# Thư mục chứa ảnh train (virtualData)
+train: images/train 
+
+# Thư mục chứa ảnh val (realData)
+val: images/val 
+
+# Danh sách các class
+names:
+  0: intersection
+  1: spacing

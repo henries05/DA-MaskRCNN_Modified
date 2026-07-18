@@ -25,7 +25,7 @@ DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/drive/
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/imgs"))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/da-train-target.txt", txt=True))
 DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/content/drive/MyDrive/RB/realData", txt=False))
-DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/realData", txt=False))
+DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
 DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
 
 
