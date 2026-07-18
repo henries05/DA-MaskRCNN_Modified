@@ -21,12 +21,12 @@ train["init_checkpoint"] = "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
 train["output_dir"] = "./ablation-DA-25k"
 model.do_domain = True
 
-DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
+DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/virtualData", txt=False))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/imgs"))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/da-train-target.txt", txt=True))
-DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/content/drive/MyDrive/RB/realData", txt=False))
-DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
-DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/drive/MyDrive/RB/virtualData", txt=False))
+DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/content/realData", txt=False))
+DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/virtualData", txt=False))
+DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/virtualData", txt=False))
 
 
 MetadataCatalog.get("steel_train").set(thing_classes=['intersection', 'spacing'])
@@ -54,7 +54,7 @@ dataloader.train = LazyCall(build_detection_train_loader)(
                         use_instance_mask=True,
                     ),
                     total_batch_size=2,
-                    num_workers=4,
+                    num_workers=2,
                     )
 dataloader.train_target = LazyCall(build_detection_train_loader)(
                             dataset=LazyCall(get_detection_dataset_dicts)(names="steel_train_target"),
@@ -81,7 +81,7 @@ dataloader.train_target = LazyCall(build_detection_train_loader)(
                                 use_instance_mask=True,
                             ),
                             total_batch_size=2,
-                            num_workers=4,
+                            num_workers=2,
                             )
 
 dataloader.test = LazyCall(build_detection_test_loader)(
@@ -94,7 +94,7 @@ dataloader.test = LazyCall(build_detection_test_loader)(
                         ],
                         image_format="${...train.mapper.image_format}",
                     ),
-                    num_workers=4,
+                    num_workers=2,
                     )
 dataloader.test_source = LazyCall(build_detection_test_loader)(
                         dataset=LazyCall(get_detection_dataset_dicts)(names="steel_test_source", filter_empty=False),
@@ -106,7 +106,7 @@ dataloader.test_source = LazyCall(build_detection_test_loader)(
                             ],
                             image_format="${...train.mapper.image_format}",
                         ),
-                        num_workers=4,
+                        num_workers=2,
                         )
 dataloader.evaluator = LazyCall(COCOEvaluator)(
                                 dataset_name="${..test.dataset.names}",
