@@ -179,7 +179,7 @@ def main(args):
     cfg.train.checkpointer.period = 100
     cfg.train.eval_period = 1000
     cfg.train.log_period = 20
-    cfg.train.amp.enabled = True
+    cfg.train.amp.enabled = False
     cfg.optimizer.lr = 0.001
     cfg.lr_multiplier = LazyCall(WarmupParamScheduler)(
         scheduler=LazyCall(MultiStepParamScheduler)(
