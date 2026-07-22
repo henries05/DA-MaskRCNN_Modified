@@ -48,6 +48,32 @@ from utils import get_no_label_dicts, get_rebar_dicts
 logger = logging.getLogger("detectron2")
 
 
+class PeriodicLastCheckpointer(hooks.HookBase):
+    """
+    Save a fixed-name checkpoint (model_last.pth) every `period` iterations by
+    overwriting the same file. Avoids creating model_XXXXXXX.pth files that
+    Google Drive moves to Trash when deleted (filling Drive quota for 30 days).
+    """
+
+    def __init__(self, checkpointer, period, file_name="model_last"):
+        self.checkpointer = checkpointer
+        self.period = int(period)
+        self.file_name = file_name
+
+    def after_step(self):
+        if not comm.is_main_process():
+            return
+        next_iter = self.trainer.iter + 1
+        if self.period > 0 and next_iter % self.period == 0:
+            self.checkpointer.save(self.file_name)
+
+    def after_train(self):
+        if not comm.is_main_process():
+            return
+        # Final overwrite so last always reflects end of training.
+        self.checkpointer.save(self.file_name)
+
+
 def _get_segm_ap(eval_results):
     """Extract COCO mask AP from evaluator output."""
     if not eval_results:
@@ -227,7 +253,11 @@ def do_train(args, cfg):
         [
             hooks.IterationTimer(),
             hooks.LRScheduler(scheduler=instantiate(cfg.lr_multiplier)),
-            hooks.PeriodicCheckpointer(checkpointer, **cfg.train.checkpointer)
+            # Overwrite model_last.pth instead of rotating model_XXXXXXX.pth
+            # (Drive Trash retains deleted files ~30 days and fills quota).
+            PeriodicLastCheckpointer(
+                checkpointer, period=cfg.train.checkpointer.period
+            )
             if comm.is_main_process()
             else None,
             hooks.EvalHook(cfg.train.eval_period, eval_and_save_best),
