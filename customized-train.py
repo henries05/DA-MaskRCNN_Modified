@@ -48,6 +48,82 @@ from utils import get_no_label_dicts, get_rebar_dicts
 logger = logging.getLogger("detectron2")
 
 
+def _get_segm_ap(eval_results):
+    """Extract COCO mask AP from evaluator output."""
+    if not eval_results:
+        return None
+    if "segm" in eval_results and isinstance(eval_results["segm"], dict):
+        return eval_results["segm"].get("AP", None)
+    # flattened keys used by some detectron2 versions / print paths
+    if "segm/AP" in eval_results:
+        return eval_results["segm/AP"]
+    return None
+
+
+def _load_best_ap(output_dir):
+    path = os.path.join(output_dir, "best_metrics.json")
+    if not os.path.isfile(path):
+        return float("-inf")
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        return float(data.get("segm_AP", float("-inf")))
+    except Exception:
+        return float("-inf")
+
+
+def _save_best_checkpoint(cfg, checkpointer, eval_results, iteration):
+    """
+    Save model_best.pth when segm AP improves.
+    Restores last_checkpoint so resume still points to the latest periodic ckpt.
+    """
+    if not comm.is_main_process():
+        return
+    ap = _get_segm_ap(eval_results)
+    if ap is None:
+        logger.warning("segm AP not found in eval results; skip best checkpoint update.")
+        return
+
+    best_ap = _load_best_ap(cfg.train.output_dir)
+    if float(ap) <= best_ap:
+        logger.info(
+            "Current segm AP {:.4f} <= best {:.4f}; keep existing model_best.pth".format(
+                float(ap), best_ap
+            )
+        )
+        return
+
+    last_ckpt_file = os.path.join(cfg.train.output_dir, "last_checkpoint")
+    prev_last = None
+    if os.path.isfile(last_ckpt_file):
+        with open(last_ckpt_file, "r") as f:
+            prev_last = f.read().strip()
+
+    checkpointer.save("model_best")
+
+    # Do not let best overwrite resume pointer.
+    if prev_last:
+        with open(last_ckpt_file, "w") as f:
+            f.write(prev_last)
+
+    metrics = {
+        "iter": int(iteration),
+        "segm_AP": float(ap),
+        "bbox_AP": None,
+    }
+    if "bbox" in eval_results and isinstance(eval_results["bbox"], dict):
+        metrics["bbox_AP"] = eval_results["bbox"].get("AP", None)
+
+    with open(os.path.join(cfg.train.output_dir, "best_metrics.json"), "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    logger.info(
+        "Updated model_best.pth at iter {} with segm AP {:.4f}".format(
+            iteration, float(ap)
+        )
+    )
+
+
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
         ret = inference_on_dataset(
@@ -140,6 +216,13 @@ def do_train(args, cfg):
         cfg.train.output_dir,
         trainer=trainer,
     )
+
+    def eval_and_save_best():
+        ret = do_test(cfg, model)
+        if ret is not None:
+            _save_best_checkpoint(cfg, checkpointer, ret, trainer.iter)
+        return ret
+
     trainer.register_hooks(
         [
             hooks.IterationTimer(),
@@ -147,7 +230,7 @@ def do_train(args, cfg):
             hooks.PeriodicCheckpointer(checkpointer, **cfg.train.checkpointer)
             if comm.is_main_process()
             else None,
-            hooks.EvalHook(cfg.train.eval_period, lambda: do_test(cfg, model)),
+            hooks.EvalHook(cfg.train.eval_period, eval_and_save_best),
             hooks.EvalHook(
                 cfg.train.eval_period, lambda: do_source_test(cfg, model)
             ),

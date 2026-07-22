@@ -147,7 +147,7 @@ train = dict(
         find_unused_parameters=False,
         fp16_compression=False,
     ),
-    checkpointer=dict(period=5000, max_to_keep=5),  # options for PeriodicCheckpointer
+    checkpointer=dict(period=5000, max_to_keep=1),  # keep only latest periodic ckpt; best is saved separately
     eval_period=5000,
     log_period=20,
     device="cuda"

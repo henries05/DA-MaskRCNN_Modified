@@ -1,3 +1,15 @@
 __pycache__/
 ablation*/
 torchscript/script/model.ts
+
+# Documents
+*.pdf
+
+# Local datasets / image folders (do not push)
+clear_images/
+real_train/
+real_test/
+virtualData/
+realData/
+datasets/
+data/
