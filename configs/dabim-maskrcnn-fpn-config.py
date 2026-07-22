@@ -25,8 +25,9 @@ DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/virtua
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/imgs"))
 # DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/home/aicenter/maskrcnn/rebar-target-dataset/da-train-target.txt", txt=True))
 DatasetCatalog.register('steel_train_target', lambda : get_no_label_dicts("/content/realData", txt=False))
-DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/virtualData", txt=False))
-DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/virtualData", txt=False))
+# Held-out official SORD validation (no overlap with virtualData train)
+DatasetCatalog.register('steel_test', lambda :  get_rebar_dicts("/content/virtualVal", txt=False))
+DatasetCatalog.register('steel_test_source', lambda :  get_rebar_dicts("/content/virtualVal", txt=False))
 
 
 MetadataCatalog.get("steel_train").set(thing_classes=['intersection', 'spacing'])
