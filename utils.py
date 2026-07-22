@@ -80,6 +80,8 @@ def get_no_label_dicts(img_dir, txt = False):
     with the fields that need for common tasks, (file_name, height, width, image_id)
     ref: https://detectron2.readthedocs.io/en/latest/tutorials/datasets.html
     """
+    from PIL import ImageOps
+
     dataset_dicts = []
     files = []
     folder = os.path.dirname(os.path.abspath(img_dir))
@@ -97,7 +99,8 @@ def get_no_label_dicts(img_dir, txt = False):
         
         filename = os.path.join(folder, img_file_name)
         try:
-            image = Image.open(filename)
+            # Apply EXIF orientation so width/height match Detectron2's image loader
+            image = ImageOps.exif_transpose(Image.open(filename))
         
             record["file_name"] = filename
             record["image_id"] = idx
