@@ -261,9 +261,6 @@ def do_train(args, cfg):
             if comm.is_main_process()
             else None,
             hooks.EvalHook(cfg.train.eval_period, eval_and_save_best),
-            hooks.EvalHook(
-                cfg.train.eval_period, lambda: do_source_test(cfg, model)
-            ),
             hooks.PeriodicWriter(
                 default_writers(cfg.train.output_dir, cfg.train.max_iter),
                 period=cfg.train.log_period,
@@ -289,7 +286,7 @@ def main(args):
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
     cfg.train.max_iter = 60000
-    cfg.train.checkpointer.period = 100
+    cfg.train.checkpointer.period = 200
     cfg.train.eval_period = 1000
     cfg.train.log_period = 20
     cfg.train.amp.enabled = False

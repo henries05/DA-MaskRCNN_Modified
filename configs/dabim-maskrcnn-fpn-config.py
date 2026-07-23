@@ -18,7 +18,7 @@ model.backbone.bottom_up.freeze_at = 0
 model.roi_heads.num_classes = 2
 model.roi_heads.box_predictor.test_score_thresh = 0.5
 train["init_checkpoint"] = "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
-train["output_dir"] = "./ablation-DA-25k"
+train["output_dir"] = "/content/drive/MyDrive/RB/output_da_v2"
 model.do_domain = True
 
 DatasetCatalog.register('steel_train', lambda : get_rebar_dicts("/content/virtualData", txt=False))
@@ -55,7 +55,7 @@ dataloader.train = LazyCall(build_detection_train_loader)(
                         use_instance_mask=True,
                     ),
                     total_batch_size=1,
-                    num_workers=2,
+                    num_workers=4,
                     )
 dataloader.train_target = LazyCall(build_detection_train_loader)(
                             dataset=LazyCall(get_detection_dataset_dicts)(names="steel_train_target"),
@@ -82,7 +82,7 @@ dataloader.train_target = LazyCall(build_detection_train_loader)(
                                 use_instance_mask=True,
                             ),
                             total_batch_size=1,
-                            num_workers=2,
+                            num_workers=4,
                             )
 
 dataloader.test = LazyCall(build_detection_test_loader)(
@@ -95,7 +95,7 @@ dataloader.test = LazyCall(build_detection_test_loader)(
                         ],
                         image_format="${...train.mapper.image_format}",
                     ),
-                    num_workers=2,
+                    num_workers=4,
                     )
 dataloader.test_source = LazyCall(build_detection_test_loader)(
                         dataset=LazyCall(get_detection_dataset_dicts)(names="steel_test_source", filter_empty=False),
@@ -107,7 +107,7 @@ dataloader.test_source = LazyCall(build_detection_test_loader)(
                             ],
                             image_format="${...train.mapper.image_format}",
                         ),
-                        num_workers=2,
+                        num_workers=4,
                         )
 dataloader.evaluator = LazyCall(COCOEvaluator)(
                                 dataset_name="${..test.dataset.names}",
